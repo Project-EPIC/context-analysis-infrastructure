@@ -1,0 +1,6 @@
+user_time*.sh
+results/
+*.in
+env/
+client/env/
+client/data/

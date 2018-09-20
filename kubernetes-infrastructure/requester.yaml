@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: requester
+spec:
+  ports:
+  - port: 80
+    targetPort: 5000
+    protocol: TCP
+    name: http
+  selector:
+    app: client-requester-ui
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: client-requester-ui
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: client-requester-ui
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: client-requester-ui
+        image: projectepic/context_query_requester:1.0.1
+        ports:
+        - containerPort: 5000
+        env:
+            - name: KAFKA_SERVERS
+              value: kafka-0.broker.kafka.svc.cluster.local:9092
+            - name: PRODUCTION
+              value: "True"

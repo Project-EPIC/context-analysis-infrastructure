@@ -1,0 +1,164 @@
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: tw-crawler-1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tw-crawler
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: tw-server
+        image: projectepic/tw_crawler:1.0.5
+        env:
+          - name: KAFKA_SERVERS
+            value: kafka-0.broker.kafka.svc.cluster.local:9092
+          - name: BUCKET_NAME
+            value: twitter-users-test
+          - name: GEOBUCKET_NAME
+            value: geo-user-timelines 
+          - name: KAFKA_TOPIC
+            value: tw_users
+          - name: ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: twsecret1
+                key: access_token
+          - name: ACCESS_TOKEN_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: twsecret1
+                key: access_token_secret
+          - name: CONSUMER_KEY
+            valueFrom:
+              secretKeyRef:
+                name: twsecret1
+                key: consumer_key
+          - name: CONSUMER_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: twsecret1
+                key: consumer_secret
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: "/private/keyfile.json"
+        volumeMounts:
+          - name: keyfiles
+            mountPath: "/private"
+      volumes:
+        - name: keyfiles
+          secret:
+            secretName: keyfile
+---
+
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: tw-crawler-2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tw-crawler
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: tw-server
+        image: projectepic/tw_crawler:1.0.5
+        env:
+          - name: KAFKA_SERVERS
+            value: kafka-0.broker.kafka.svc.cluster.local:9092
+          - name: BUCKET_NAME
+            value: twitter-users-test
+          - name: GEOBUCKET_NAME
+            value: geo-user-timelines 
+          - name: KAFKA_TOPIC
+            value: tw_users
+          - name: ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: twsecret2
+                key: access_token
+          - name: ACCESS_TOKEN_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: twsecret2
+                key: access_token_secret
+          - name: CONSUMER_KEY
+            valueFrom:
+              secretKeyRef:
+                name: twsecret2
+                key: consumer_key
+          - name: CONSUMER_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: twsecret2
+                key: consumer_secret
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: "/private/keyfile.json"
+        volumeMounts:
+          - name: keyfiles
+            mountPath: "/private"
+      volumes:
+        - name: keyfiles
+          secret:
+            secretName: keyfile
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: tw-crawler-3
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tw-crawler
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: tw-server
+        image: projectepic/tw_crawler:1.0.5
+        env:
+          - name: KAFKA_SERVERS
+            value: kafka-0.broker.kafka.svc.cluster.local:9092
+          - name: BUCKET_NAME
+            value: twitter-users-test
+          - name: GEOBUCKET_NAME
+            value: geo-user-timelines
+          - name: KAFKA_TOPIC
+            value: tw_users
+          - name: ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: twsecret3
+                key: access_token
+          - name: ACCESS_TOKEN_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: twsecret3
+                key: access_token_secret
+          - name: CONSUMER_KEY
+            valueFrom:
+              secretKeyRef:
+                name: twsecret3
+                key: consumer_key
+          - name: CONSUMER_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: twsecret3
+                key: consumer_secret
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: "/private/keyfile.json"
+        volumeMounts:
+          - name: keyfiles
+            mountPath: "/private"
+      volumes:
+        - name: keyfiles
+          secret:
+            secretName: keyfile
