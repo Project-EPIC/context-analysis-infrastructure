@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block body %}
+    {% raw %}
+    <div class="container">
+
+        <div id="app">
+            <div class="row">
+                <div class="col-md-6">
+                    <h1>Downloaded events</h1>
+
+                    <ul>
+                        <li v-for="event in events">
+                            <a :href="data_url + event">{{ event |capitalize }}</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h1>Geographic data events</h1>
+
+                    <ul>
+                        <li v-for="event in events">
+                            <a :href="geo_url + event">{{ event |capitalize }}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endraw %}
+    <script>
+        let app = new Vue({
+            el: '#app',
+            data () {
+
+                return {
+                    events: {},
+                    data_url: '{{  url_for('home_event', event='') }}',
+                    geo_url: '{{ url_for('geohome_event', event='') }}',
+                }
+            },
+            filters: {
+                capitalize: function (value) {
+                    if (!value) return ''
+                    value = value.toString()
+                    value = value.replace('_', ' ')
+                    return value.charAt(0).toUpperCase() + value.slice(1)
+                }
+            },
+            mounted () {
+                fetch('{{ url_for('overall_events') }}').then(resp => resp.json()).then(results => {
+                    this.events = results.events
+                })
+            }
+        })
+    </script>
+{% endblock %}

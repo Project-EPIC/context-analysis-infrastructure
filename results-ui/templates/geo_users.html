@@ -3,18 +3,21 @@
     {% raw %}
     <div class="container">
         <div id="app">
-            <div v-if="Object.keys(events).length" class="row">
-                <div v-for="(statuses,event) in events" class="col-md-3">
+            <div v-if="Object.keys(events).length" >
+                <div v-for="(statuses,event) in events" >
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h1 v-bind:id="event">{{ event | capitalize }}</h1>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div v-for="(users,status) in statuses" class="col-md-3">
 
-                    <h1 v-bind:id="event">{{ event | capitalize }}</h1>
-
-
-                    <div v-for="(users,status) in statuses">
-
-                        <h2>{{ status | capitalize }}</h2>
-                        <ol>
-                            <li v-for="user in users"><a target="_blank" v-bind:href="user.url">{{ user.user }}</a></li>
-                        </ol>
+                            <h2>{{ status | capitalize }}</h2>
+                            <ol>
+                                <li v-for="user in users"><a v-bind:href="user.url">{{ user.user }}</a></li>
+                            </ol>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -52,7 +55,7 @@
                     accumulator[currentValue['event']] = event
                     return accumulator
                 }
-                fetch('{{ url_for('get_geodata') }}').then(resp => resp.json()).then(results => {
+                fetch('{{ url_for('get_geodata_event', event=event) }}').then(resp => resp.json()).then(results => {
                     let events = {}
                     for (let result of results) {
                         let event = events[result['event']] || {}
