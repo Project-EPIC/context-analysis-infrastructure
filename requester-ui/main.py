@@ -38,8 +38,8 @@ def home():
     return render_template('submit.html')
 
 
-def _generate_user_string(end_date, event, start_date, user):
-    return user + ',' + event + ',' + start_date + ',' + end_date
+def _generate_user_string(end_date, event, start_date, user, extended=False):
+    return user + ',' + event + ',' + start_date + ',' + end_date + ',' + str(extended)
 
 
 @app.route('/submit', methods=['POST'])
@@ -53,9 +53,10 @@ def submit():
     users = request.form.get('users', None)
     if not users:
         return json.dumps({'type': 'error', 'message': 'Missing users'})
+    extended = request.form.get('extended', 'false').lower() == 'true'
     for user in users.split(','):
         user = slugify(user)
-        user_string = _generate_user_string(end_date, event, start_date, user)
+        user_string = _generate_user_string(end_date, event, start_date, user, extended)
         PRODUCER.send(TOPIC, bytes(user_string))
     return json.dumps({'type': 'success', 'message': 'Users added to queue'})
 

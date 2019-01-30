@@ -4,7 +4,7 @@ push: push-client
 .PHONY: push build
 
 
-TAG_CLIENT = 1.0.1
+TAG_CLIENT = 1.0.2
 PROJECT_NAME = context_query_requester
 
 build-client:

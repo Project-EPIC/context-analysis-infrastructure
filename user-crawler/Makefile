@@ -4,7 +4,7 @@ push: push-server
 .PHONY: push build
 
 
-TAG = 1.0.5
+TAG = 1.0.8
 PROJECT_NAME = tw_crawler
 
 build-server:

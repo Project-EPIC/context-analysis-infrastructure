@@ -25,7 +25,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
       - name: client-requester-ui
-        image: projectepic/context_query_requester:1.0.1
+        image: projectepic/context_query_requester:1.0.2
         ports:
         - containerPort: 5000
         env:

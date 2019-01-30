@@ -125,7 +125,6 @@ def _twitter_errors_handler(cursor):
             if not '=' in e.reason:
                 raise
             api_code = int(e.reason.split('=')[1].replace(' ', ''))
-            print(api_code)
             if api_code == 429:
                 logging.warn('Rate limit reached! Sleeping for 2 minutes. Good night, be back in a bit!')
                 time.sleep(2 * 60)
@@ -147,31 +146,37 @@ def _unpack(input_line):
     d_format = '%m/%d/%Y'
     input_line = input_line.replace(' ', '').replace('\n', '')
     try:
+        user, event, start_date, end_date, extended = input_line.split(',')
+        return user, event, datetime.strptime(start_date, d_format), datetime.strptime(end_date, d_format), \
+               extended.lower() == 'true'
+    except ValueError:
+        pass
+    try:
         user, event, start_date, end_date = input_line.split(',')
-        return user, event, datetime.strptime(start_date, d_format), datetime.strptime(end_date, d_format)
+        return user, event, datetime.strptime(start_date, d_format), datetime.strptime(end_date, d_format), False
     except ValueError:
         pass
     try:
         user, event, start_date = input_line.split(',')
-        return user, event, datetime.strptime(start_date, d_format), None
+        return user, event, datetime.strptime(start_date, d_format), None, False
     except ValueError:
         pass
     try:
         user, event, _, _ = input_line.split(',')
-        return user, event, None, None
+        return user, event, None, None, False
     except ValueError:
         pass
     try:
         user, event, _ = input_line.split(',')
-        return user, event, None, None
+        return user, event, None, None, False
     except ValueError:
         pass
     try:
         user, event = input_line.split(',')
-        return user, event, None, None
+        return user, event, None, None, False
     except ValueError:
         pass
-    return input_line, None, None, None
+    return input_line, None, None, None, False
 
 
 def _generate_status(before_start_date, before_end_date, non_accessible):
@@ -200,7 +205,7 @@ def _tweet_to_feature(tweet):
                'properties': {
                    'user': tweet['user']['screen_name'],
                    'date': tweet['created_at'],
-                   'text': tweet['text'],
+                   'text': tweet['text'] if 'text' in tweet else tweet['full_text'],
                    'tweetID': tweet['id_str']
                },
                'geometry': geo
@@ -211,10 +216,13 @@ ALL_STATUS = ['not_accessible', 'complete', 'incomplete', 'failed']
 
 
 def pull_user_timeline(input_line, is_geo_enabled=True):
-    user, event, start_date, end_date = _unpack(input_line)
+    user, event, start_date, end_date, extended = _unpack(input_line)
     user = slugify(user)
     logging.info('Pulling tweets for %s...' % user)
-    cursor = Cursor(api.user_timeline, id=user, count=200)
+    if extended:
+        cursor = Cursor(api.user_timeline, id=user, count=200, tweet_mode='extended')
+    else:
+        cursor = Cursor(api.user_timeline, id=user, count=200)
     filename = _generate_filename(user, None, None)
     geofilename = _generate_geofilename(user, None, None)
     _ensure_folder_exists(filename)
@@ -290,7 +298,7 @@ def generate_pull_bucket(bucket, geobucket):
         gb = None
 
     def func(input_line, is_geo_enabled):
-        user, event, _, _ = _unpack(input_line)
+        user, event, _, _, _ = _unpack(input_line)
         user = slugify(user)
         for status in ALL_STATUS:
             filename = _generate_filename(user, event, status)
